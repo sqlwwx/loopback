@@ -111,7 +111,18 @@ describe('access control - integration', function() {
           assert.equal(user.password, undefined);
         });
       });
-      lt.describe.whenCalledRemotely('PUT', '/api/users/:id', function() {
+
+      // TODO: This test would be valid only if model.settings.updateOnPUT
+      // is true.
+      // How to pass Model.settings.options.updateOnPUT
+      //
+
+      lt.describe.whenCalledRemotely('PATCH', '/api/users/:id', function() {
+        beforeEach(function(done) {
+          app.models.user.settings.updateOnPUT = true;
+          app.models.user.setup();
+          done();
+        });
         lt.it.shouldBeAllowed();
       });
     });
@@ -210,6 +221,13 @@ describe('access control - integration', function() {
         });
       });
 
+      // TODO: How to check Model.settings.options.updateOnPUT
+      // to decide whether the following test should be for
+      // (PUT for replace and PATCH for update) OR (PUT for update and POST for replace)
+
+      lt.describe.whenCalledRemotely('PATCH', '/api/accounts/:id', function() {
+        lt.it.shouldBeAllowed();
+      });
       lt.describe.whenCalledRemotely('PUT', '/api/accounts/:id', function() {
         lt.it.shouldBeAllowed();
       });

@@ -106,7 +106,7 @@ describe('remoting - integration', function() {
         })[0];
     }
 
-    it('has expected remote methods', function() {
+    it('has expected remote methods without model.settings.updateOnPUT', function() {
       var storeClass = findClass('store');
       var methods = storeClass.methods
         .filter(function(m) {
@@ -118,15 +118,17 @@ describe('remoting - integration', function() {
 
       var expectedMethods = [
         'create(data:object):store POST /stores',
-        'upsert(data:object):store PUT /stores',
+        'upsert(data:object):store PATCH /stores',
+        'replaceOrCreate(data:object):store PUT /stores',
         'exists(id:any):boolean GET /stores/:id/exists',
         'findById(id:any,filter:object):store GET /stores/:id',
+        'replaceById(id:any,data:object):store PUT /stores/:id',
         'find(filter:object):store GET /stores',
         'findOne(filter:object):store GET /stores/findOne',
         'updateAll(where:object,data:object):object POST /stores/update',
         'deleteById(id:any):object DELETE /stores/:id',
         'count(where:object):number GET /stores/count',
-        'prototype.updateAttributes(data:object):store PUT /stores/:id',
+        'prototype.updateAttributes(data:object):store PATCH /stores/:id',
         'createChangeStream(options:object):ReadableStream POST /stores/change-stream',
       ];
 
@@ -238,5 +240,38 @@ describe('remoting - integration', function() {
         ];
         expect(methods).to.include.members(expectedMethods);
       });
+
+    it.skip('has expected remote methods with model.settings.updateOnPUT', function() {
+      app.models.store.settings.updateOnPUT = true;
+      app.models.store.setup();
+      var storeClass = findClass('store');
+      var methods = storeClass.methods
+        .filter(function(m) {
+          return m.name.indexOf('__') === -1;
+        })
+        .map(function(m) {
+          return formatMethod(m);
+        });
+
+      var expectedMethods = [
+        'create(data:object):store POST /stores',
+        'upsert(data:object):store PUT /stores',
+        'replaceOrCreate(data:object):store POST /stores',
+        'exists(id:any):boolean GET /stores/:id/exists',
+        'findById(id:any,filter:object):store GET /stores/:id',
+        'replaceById(id:any,data:object):store POST /stores/:id',
+        'find(filter:object):store GET /stores',
+        'findOne(filter:object):store GET /stores/findOne',
+        'updateAll(where:object,data:object):object POST /stores/update',
+        'deleteById(id:any):object DELETE /stores/:id',
+        'count(where:object):number GET /stores/count',
+        'prototype.updateAttributes(data:object):store PUT /stores/:id',
+        'createChangeStream(options:object):ReadableStream POST /stores/change-stream',
+      ];
+
+      // TODO: update the doc for list of methods accordingly
+      // https://docs.strongloop.com/display/public/LB/Exposing+models+over+REST
+      expect(methods).to.include.members(expectedMethods);
+    });
   });
 });
