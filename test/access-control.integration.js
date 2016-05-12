@@ -119,7 +119,7 @@ describe('access control - integration', function() {
 
       lt.describe.whenCalledRemotely('PATCH', '/api/users/:id', function() {
         beforeEach(function(done) {
-          app.models.user.settings.updateOnPUT = true;
+          app.models.user.settings.updateOnPUT = false;
           app.models.user.setup();
           done();
         });
