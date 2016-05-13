@@ -112,16 +112,20 @@ describe('access control - integration', function() {
         });
       });
 
-      // TODO: This test would be valid only if model.settings.updateOnPUT
-      // is not set or false. By default it would be false in this patch.
+      // TODO 1: This test would be valid only if model.settings.replaceOnPUT
+      // is set to false.
       // Apparently my setup in beforeEach is not right
       //
+//      lt.describe.whenCalledRemotely('PUT', '/api/users/:id', function() {
+//        beforeEach(function(done) {
+//          app.models.user.settings.replaceOnPUT = false;
+//          app.models.user.setup();
+//          done();
+//        });
+//        lt.it.shouldBeAllowed();
+//      });
+
       lt.describe.whenCalledRemotely('PATCH', '/api/users/:id', function() {
-        beforeEach(function(done) {
-          app.models.user.settings.updateOnPUT = false;
-          app.models.user.setup();
-          done();
-        });
         lt.it.shouldBeAllowed();
       });
     });
@@ -205,45 +209,10 @@ describe('access control - integration', function() {
     lt.it.shouldBeDeniedWhenCalledUnauthenticated('PUT', urlForAccount);
     lt.it.shouldBeDeniedWhenCalledByUser(CURRENT_USER, 'PUT', urlForAccount);
 
-    // TODO: again apparently the way I add settings to my model is not working
-//    lt.describe.whenLoggedInAsUser(CURRENT_USER, function() {
-//      beforeEach(function(done) {
-//        var self = this;
-//        app.models.account.settings.updateOnPUT = true;
-//        app.models.account.setup();
-//        // Create an account under the given user
-//        app.models.account.create({
-//          userId: self.user.id,
-//          balance: 100,
-//        }, function(err, act) {
-//          self.url = '/api/accounts/' + act.id;
-//
-//          done();
-//        });
-//      });
-//
-//      // TODO: How to check Model.settings.options.updateOnPUT
-//      // to decide whether the following test should be for
-//      // (PUT for replace and PATCH for update) OR (PUT for update and POST for replace)
-//
-//      lt.describe.whenCalledRemotely('POST', '/api/accounts/:id', function() {
-//        lt.it.shouldBeAllowed();
-//      });
-//      lt.describe.whenCalledRemotely('PUT', '/api/accounts/:id', function() {
-//        lt.it.shouldBeAllowed();
-//      });
-//      lt.describe.whenCalledRemotely('GET', '/api/accounts/:id', function() {
-//        lt.it.shouldBeAllowed();
-//      });
-//      lt.describe.whenCalledRemotely('DELETE', '/api/accounts/:id', function() {
-//        lt.it.shouldBeDenied();
-//      });
-//    });
-
     lt.describe.whenLoggedInAsUser(CURRENT_USER, function() {
       beforeEach(function(done) {
         var self = this;
-        app.models.account.settings.updateOnPUT = false;
+        app.models.account.settings.replaceOnPUT = true;
         app.models.account.setup();
         // Create an account under the given user
         app.models.account.create({
@@ -259,6 +228,40 @@ describe('access control - integration', function() {
       lt.describe.whenCalledRemotely('PATCH', '/api/accounts/:id', function() {
         lt.it.shouldBeAllowed();
       });
+      lt.describe.whenCalledRemotely('PUT', '/api/accounts/:id', function() {
+        lt.it.shouldBeAllowed();
+      });
+      lt.describe.whenCalledRemotely('GET', '/api/accounts/:id', function() {
+        lt.it.shouldBeAllowed();
+      });
+      lt.describe.whenCalledRemotely('DELETE', '/api/accounts/:id', function() {
+        lt.it.shouldBeDenied();
+      });
+    });
+
+    lt.describe.whenLoggedInAsUser(CURRENT_USER, function() {
+      beforeEach(function(done) {
+        var self = this;
+        app.models.account.settings.replaceOnPUT = false;
+        app.models.account.setup();
+        // Create an account under the given user
+        app.models.account.create({
+          userId: self.user.id,
+          balance: 100,
+        }, function(err, act) {
+          self.url = '/api/accounts/' + act.id;
+
+          done();
+        });
+      });
+
+      lt.describe.whenCalledRemotely('PATCH', '/api/accounts/:id', function() {
+        lt.it.shouldBeAllowed();
+      });
+      // TODO 2: For some reason `app.models.account.settings.replaceOnPUT = false;` is not passed
+//      lt.describe.whenCalledRemotely('POST', '/api/accounts/:id/replace', function() {
+//        lt.it.shouldBeAllowed();
+//      });
       lt.describe.whenCalledRemotely('PUT', '/api/accounts/:id', function() {
         lt.it.shouldBeAllowed();
       });
