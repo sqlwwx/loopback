@@ -113,8 +113,7 @@ describe('access control - integration', function() {
       });
 
       // TODO 1: This test would be valid only if model.settings.replaceOnPUT
-      // is set to false.
-      // Apparently my setup in beforeEach is not right
+      // is set to false. Apparently my setup in beforeEach is not working!
       //
 //      lt.describe.whenCalledRemotely('PUT', '/api/users/:id', function() {
 //        beforeEach(function(done) {
@@ -258,7 +257,8 @@ describe('access control - integration', function() {
       lt.describe.whenCalledRemotely('PATCH', '/api/accounts/:id', function() {
         lt.it.shouldBeAllowed();
       });
-      // TODO 2: For some reason `app.models.account.settings.replaceOnPUT = false;` is not passed
+      // TODO 2: For some reason `app.models.account.settings.replaceOnPUT = false;`
+      // is not passed to `setupRemoting`
 //      lt.describe.whenCalledRemotely('POST', '/api/accounts/:id/replace', function() {
 //        lt.it.shouldBeAllowed();
 //      });
