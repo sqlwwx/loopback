@@ -241,6 +241,7 @@ describe('remoting - integration', function() {
         expect(methods).to.include.members(expectedMethods);
       });
 
+    // TODO: apparently the way I set up model settings is not right?
     it.skip('has expected remote methods with model.settings.updateOnPUT', function() {
       app.models.store.settings.updateOnPUT = true;
       app.models.store.setup();

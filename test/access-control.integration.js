@@ -113,10 +113,9 @@ describe('access control - integration', function() {
       });
 
       // TODO: This test would be valid only if model.settings.updateOnPUT
-      // is true.
-      // How to pass Model.settings.options.updateOnPUT
+      // is not set or false. By default it would be false in this patch.
+      // Apparently my setup in beforeEach is not right
       //
-
       lt.describe.whenCalledRemotely('PATCH', '/api/users/:id', function() {
         beforeEach(function(done) {
           app.models.user.settings.updateOnPUT = false;
