@@ -106,7 +106,9 @@ describe('remoting - integration', function() {
         })[0];
     }
 
-    it('has expected remote methods without model.settings.updateOnPUT', function() {
+    it('has expected remote methods with model.settings.replaceOnPUT set to false', function() {
+      app.models.store.settings.replaceOnPUT = false;
+      app.models.store.setup();
       var storeClass = findClass('store');
       var methods = storeClass.methods
         .filter(function(m) {
@@ -241,7 +243,7 @@ describe('remoting - integration', function() {
         expect(methods).to.include.members(expectedMethods);
       });
 
-    it('has expected remote methods with model.settings.updateOnPUT', function() {
+    it('has expected remote methods with model.settings.replaceOnPUT set to true', function() {
       app.models.store.settings.replaceOnPUT = true;
       app.models.store.setup();
       var storeClass = findClass('store');
