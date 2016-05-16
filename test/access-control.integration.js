@@ -257,11 +257,10 @@ describe('access control - integration', function() {
       lt.describe.whenCalledRemotely('PATCH', '/api/accounts/:id', function() {
         lt.it.shouldBeAllowed();
       });
-      // TODO 2: For some reason `app.models.account.settings.replaceOnPUT = false;`
-      // is not passed to `setupRemoting`
-//      lt.describe.whenCalledRemotely('POST', '/api/accounts/:id/replace', function() {
-//        lt.it.shouldBeAllowed();
-//      });
+       // TODO 2: It gives 404 status code!
+      lt.describe.whenCalledRemotely('POST', '/api/accounts/:id/replace', function() {
+        lt.it.shouldBeAllowed();
+      });
       lt.describe.whenCalledRemotely('PUT', '/api/accounts/:id', function() {
         lt.it.shouldBeAllowed();
       });
