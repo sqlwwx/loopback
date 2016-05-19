@@ -105,7 +105,7 @@ describe('remoting - integration', function() {
           return c.name === name;
         })[0];
     }
-    
+
     // TODO: this test case needs to be fixed
     it.skip('has expected remote methods with model.settings.replaceOnPUT set to false',
     function() {
