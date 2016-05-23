@@ -73,7 +73,6 @@ describe('remoting - integration', function() {
   });
 
   describe('Model shared classes', function() {
-    // TODO: this test case needs to be fixed
     it('has expected remote methods with default model.settings.replaceOnPUT' +
       'set to true (3.x)',
     function() {
