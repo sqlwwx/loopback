@@ -73,44 +73,10 @@ describe('remoting - integration', function() {
   });
 
   describe('Model shared classes', function() {
-    function formatReturns(m) {
-      var returns = m.returns;
-      if (!returns || returns.length === 0) {
-        return '';
-      }
-      var type = returns[0].type;
-      return type ? ':' + type : '';
-    }
-
-    function formatMethod(m) {
-      return [
-        m.name,
-        '(',
-        m.accepts.map(function(a) {
-          return a.arg + ':' + a.type;
-        }).join(','),
-        ')',
-        formatReturns(m),
-        ' ',
-        m.getHttpMethod(),
-        ' ',
-        m.getFullPath(),
-      ].join('');
-    }
-
-    function findClass(name) {
-      return app.handler('rest').adapter
-        .getClasses()
-        .filter(function(c) {
-          return c.name === name;
-        })[0];
-    }
-
     // TODO: this test case needs to be fixed
-    it.skip('has expected remote methods with model.settings.replaceOnPUT set to false',
+    it('has expected remote methods with default model.settings.replaceOnPUT' +
+      'set to true (3.x)',
     function() {
-      app.models.store.settings.replaceOnPUT = false;
-      app.models.store.setup();
       var storeClass = findClass('store');
       var methods = storeClass.methods
         .filter(function(m) {
@@ -123,21 +89,18 @@ describe('remoting - integration', function() {
       var expectedMethods = [
         'create(data:object):store POST /stores',
         'upsert(data:object):store PATCH /stores',
-        'upsert(data:object):store PUT /stores',
-        'replaceOrCreate(data:object):store POST /stores/replaceOrCreate',
+        'replaceOrCreate(data:object):store PUT /stores',
         'exists(id:any):boolean GET /stores/:id/exists',
         'findById(id:any,filter:object):store GET /stores/:id',
-        'replaceById(id:any,data:object):store PUT /stores/:id/replace',
+        'replaceById(id:any,data:object):store PUT /stores/:id',
         'find(filter:object):store GET /stores',
         'findOne(filter:object):store GET /stores/findOne',
         'updateAll(where:object,data:object):object POST /stores/update',
         'deleteById(id:any):object DELETE /stores/:id',
         'count(where:object):number GET /stores/count',
         'prototype.updateAttributes(data:object):store PATCH /stores/:id',
-        'prototype.updateAttributes(data:object):store PUT /stores/:id',
         'createChangeStream(options:object):ReadableStream POST /stores/change-stream',
       ];
-
       // The list of methods is from docs:
       // https://docs.strongloop.com/display/public/LB/Exposing+models+over+REST
       expect(methods).to.include.members(expectedMethods);
@@ -281,3 +244,119 @@ describe('remoting - integration', function() {
     });
   });
 });
+
+describe('With model.settings.replaceOnPUT false' +
+  'set to false', function() {
+  lt.beforeEach.withApp(app);
+  lt.beforeEach.givenModel('storefalse');
+  afterEach(function(done) {
+    this.app.models.storefalse.destroyAll(done);
+  });
+
+  it('should have expected remote methods',
+  function() {
+    var storeClass = findClass('storefalse');
+    var methods = storeClass.methods
+      .filter(function(m) {
+        return m.name.indexOf('__') === -1;
+      })
+      .map(function(m) {
+        return formatMethod(m);
+      });
+
+    var expectedMethods = [
+      'create(data:object):storefalse POST /storefalses',
+      'upsert(data:object):storefalse PATCH /storefalses',
+//        'upsert(data:object):storefalse PUT /storefalses',
+      'replaceOrCreate(data:object):storefalse POST /storefalses/replaceOrCreate',
+      'exists(id:any):boolean GET /storefalses/:id/exists',
+      'findById(id:any,filter:object):storefalse GET /storefalses/:id',
+      'replaceById(id:any,data:object):storefalse POST /storefalses/:id/replace',
+      'find(filter:object):storefalse GET /storefalses',
+      'findOne(filter:object):storefalse GET /storefalses/findOne',
+      'updateAll(where:object,data:object):object POST /storefalses/update',
+      'deleteById(id:any):object DELETE /storefalses/:id',
+      'count(where:object):number GET /storefalses/count',
+      'prototype.updateAttributes(data:object):storefalse PATCH /storefalses/:id',
+//        'prototype.updateAttributes(data:object):storefalse PUT /storefalses/:id',
+      'createChangeStream(options:object):ReadableStream POST /storefalses/change-stream',
+    ];
+
+    // The list of methods is from docs:
+    // https://docs.strongloop.com/display/public/LB/Exposing+models+over+REST
+    expect(methods).to.include.members(expectedMethods);
+  });
+});
+
+describe('With model.settings.replaceOnPUT true' +
+  'set to true', function() {
+  lt.beforeEach.withApp(app);
+  lt.beforeEach.givenModel('storetrue');
+  afterEach(function(done) {
+    this.app.models.storetrue.destroyAll(done);
+  });
+
+  it('should have expected remote methods',
+  function() {
+    var storeClass = findClass('storetrue');
+    var methods = storeClass.methods
+      .filter(function(m) {
+        return m.name.indexOf('__') === -1;
+      })
+      .map(function(m) {
+        return formatMethod(m);
+      });
+
+    var expectedMethods = [
+      'create(data:object):storetrue POST /storetrues',
+      'upsert(data:object):storetrue PATCH /storetrues',
+      'replaceOrCreate(data:object):storetrue PUT /storetrues',
+      'exists(id:any):boolean GET /storetrues/:id/exists',
+      'findById(id:any,filter:object):storetrue GET /storetrues/:id',
+      'replaceById(id:any,data:object):storetrue PUT /storetrues/:id',
+      'find(filter:object):storetrue GET /storetrues',
+      'findOne(filter:object):storetrue GET /storetrues/findOne',
+      'updateAll(where:object,data:object):object POST /storetrues/update',
+      'deleteById(id:any):object DELETE /storetrues/:id',
+      'count(where:object):number GET /storetrues/count',
+      'prototype.updateAttributes(data:object):storetrue PATCH /storetrues/:id',
+      'createChangeStream(options:object):ReadableStream POST /storetrues/change-stream',
+    ];
+    // The list of methods is from docs:
+    // https://docs.strongloop.com/display/public/LB/Exposing+models+over+REST
+    expect(methods).to.include.members(expectedMethods);
+  });
+});
+
+function formatReturns(m) {
+  var returns = m.returns;
+  if (!returns || returns.length === 0) {
+    return '';
+  }
+  var type = returns[0].type;
+  return type ? ':' + type : '';
+}
+
+function formatMethod(m) {
+  return [
+    m.name,
+    '(',
+    m.accepts.map(function(a) {
+      return a.arg + ':' + a.type;
+    }).join(','),
+    ')',
+    formatReturns(m),
+    ' ',
+    m.getHttpMethod(),
+    ' ',
+    m.getFullPath(),
+  ].join('');
+}
+
+function findClass(name) {
+  return app.handler('rest').adapter
+    .getClasses()
+    .filter(function(c) {
+      return c.name === name;
+    })[0];
+}

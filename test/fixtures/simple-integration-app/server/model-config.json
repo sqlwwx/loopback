@@ -37,6 +37,14 @@
     "public": true,
     "dataSource": "db"
   },
+  "storefalse": {
+    "public": true,
+    "dataSource": "db"
+  },
+  "storetrue": {
+    "public": true,
+    "dataSource": "db"
+  },
   "physician": {
     "dataSource": "db",
     "public": true
