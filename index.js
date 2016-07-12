@@ -8,7 +8,7 @@
  */
  
 var loopback = module.exports = require('./lib/loopback');
-var datasourceJuggler = require('loopback-datasource-juggler');
+var datasourceJuggler = require('loopback-datasource-jugglernext');
 
 /**
  * Connectors
@@ -17,11 +17,11 @@ var datasourceJuggler = require('loopback-datasource-juggler');
 loopback.Connector = require('./lib/connectors/base-connector');
 loopback.Memory = require('./lib/connectors/memory');
 loopback.Mail = require('./lib/connectors/mail');
-loopback.Remote = require('loopback-connector-remote');
+loopback.Remote = require('loopback-connector-remotenext');
 
 /**
  * Types
  */
 
-loopback.GeoPoint = require('loopback-datasource-juggler/lib/geo').GeoPoint;
+loopback.GeoPoint = require('loopback-datasource-jugglernext/lib/geo').GeoPoint;
 loopback.ValidationError = loopback.Model.ValidationError;

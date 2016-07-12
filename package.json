@@ -1,5 +1,5 @@
 {
-  "name": "loopback",
+  "name": "loopbacknext",
   "version": "2.29.0",
   "description": "LoopBack: Open Source Framework for Node.js",
   "homepage": "http://loopback.io",
@@ -38,24 +38,24 @@
     "canonical-json": "0.0.4",
     "continuation-local-storage": "^3.1.3",
     "cookie-parser": "^1.3.4",
-    "debug": "^2.1.2",
+    "debug": "^2.2.0",
     "depd": "^1.0.0",
     "ejs": "^2.3.1",
     "errorhandler": "^1.3.4",
     "express": "^4.12.2",
     "inflection": "^1.6.0",
-    "loopback-connector-remote": "^1.0.3",
-    "loopback-phase": "^1.2.0",
+    "loopback-connector-remotenext": "^1.3.1",
+    "loopback-phase": "^1.3.1",
     "nodemailer": "^1.3.1",
     "nodemailer-stub-transport": "^0.1.5",
     "serve-favicon": "^2.2.0",
     "stable": "^0.1.5",
-    "strong-remoting": "^2.21.0",
+    "strong-remotingnext": "^2.28.1",
     "uid2": "0.0.3",
     "underscore.string": "^3.0.3"
   },
   "peerDependencies": {
-    "loopback-datasource-juggler": "^2.19.0"
+    "loopback-datasource-jugglernext": "^2.46.1"
   },
   "devDependencies": {
     "bluebird": "^2.9.9",
@@ -80,8 +80,8 @@
     "karma-mocha": "^0.1.10",
     "karma-phantomjs-launcher": "^1.0.0",
     "karma-script-launcher": "^0.1.0",
-    "loopback-boot": "^2.7.0",
-    "loopback-datasource-juggler": "^2.19.1",
+    "loopback-bootnext": "^2.18.1",
+    "loopback-datasource-jugglernext": "^2.46.1",
     "loopback-testing": "~1.1.0",
     "mocha": "^2.1.0",
     "phantomjs-prebuilt": "^2.1.7",
@@ -92,7 +92,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/strongloop/loopback"
+    "url": "git+https://github.com/sqlwwx/loopback"
   },
   "browser": {
     "express": "./lib/browser-express.js",
@@ -101,7 +101,7 @@
     "connect": false,
     "nodemailer": false,
     "supertest": false,
-    "depd": "loopback-datasource-juggler/lib/browser.depd.js",
+    "depd": "loopback-datasource-jugglernext/lib/browser.depd.js",
     "bcrypt": false
   },
   "config": {

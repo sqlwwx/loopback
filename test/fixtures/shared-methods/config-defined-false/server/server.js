@@ -3,7 +3,7 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-var boot = require('loopback-boot');
+var boot = require('loopback-bootnext');
 var loopback = require('../../../../../index');
 
 var app = module.exports = loopback();

@@ -9,7 +9,7 @@ var loopback = require('../../');
 var ACL = loopback.ACL;
 var Change = loopback.Change;
 var PersistedModel = loopback.PersistedModel;
-var RemoteObjects = require('strong-remoting');
+var RemoteObjects = require('strong-remotingnext');
 
 module.exports = function defineModelTestsWithDataSource(options) {
 

@@ -9,6 +9,7 @@ var path = require('path');
 var SIMPLE_APP = path.join(__dirname, 'fixtures', 'simple-integration-app');
 var app = require(path.join(SIMPLE_APP, 'server/server.js'));
 var assert = require('assert');
+var expect = require('chai').expect;
 
 describe('remoting - integration', function() {
   before(function(done) {
@@ -133,7 +134,7 @@ describe('remoting - integration', function() {
         'updateAll(where:object,data:object):object POST /stores/update',
         'deleteById(id:any):object DELETE /stores/:id',
         'count(where:object):number GET /stores/count',
-        'prototype.updateAttributes(data:object):store PUT /stores/:id',
+        'prototype.updateAttributes(data:object,options:object):store PUT /stores/:id',
         'createChangeStream(options:object):ReadableStream POST /stores/change-stream'
       ];
 
@@ -233,7 +234,7 @@ describe('remoting - integration', function() {
           'PUT /physicians/:id/patients/:fk',
           'prototype.__link__patients(fk:any,data:appointment):appointment ' +
           'PUT /physicians/:id/patients/rel/:fk',
-          'prototype.__unlink__patients(fk:any) ' +
+          'prototype.__unlink__patients(fk:any,filter:object) ' +
           'DELETE /physicians/:id/patients/rel/:fk',
           'prototype.__exists__patients(fk:any):boolean ' +
           'HEAD /physicians/:id/patients/rel/:fk',

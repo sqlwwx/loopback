@@ -4,7 +4,7 @@
 // License text available at https://opensource.org/licenses/MIT
 
 var loopback = require('../../../..');
-var boot = require('loopback-boot');
+var boot = require('loopback-bootnext');
 var app = module.exports = loopback();
 
 boot(app, __dirname);

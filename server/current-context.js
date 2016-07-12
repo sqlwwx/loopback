@@ -3,8 +3,8 @@
 // This file is licensed under the MIT License.
 // License text available at https://opensource.org/licenses/MIT
 
-var juggler = require('loopback-datasource-juggler');
-var remoting = require('strong-remoting');
+var juggler = require('loopback-datasource-jugglernext');
+var remoting = require('strong-remotingnext');
 var cls = require('continuation-local-storage');
 var domain = require('domain');
 

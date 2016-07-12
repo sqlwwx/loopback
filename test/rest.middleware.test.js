@@ -251,11 +251,11 @@ describe('loopback.rest', function() {
         var req = context.get('http').req;
         expect(req).to.have.property('accessToken');
 
-        var juggler = require('loopback-datasource-juggler');
+        var juggler = require('loopback-datasource-jugglernext');
         expect(juggler.getCurrentContext().get('http').req)
           .to.have.property('accessToken');
 
-        var remoting = require('strong-remoting');
+        var remoting = require('strong-remotingnext');
         expect(remoting.getCurrentContext().get('http').req)
           .to.have.property('accessToken');
 
@@ -324,11 +324,11 @@ describe('loopback.rest', function() {
         var accessToken = context.get('accessToken');
         expect(context.get('accessToken')).to.have.property('id');
 
-        var juggler = require('loopback-datasource-juggler');
+        var juggler = require('loopback-datasource-jugglernext');
         context = juggler.getCurrentContext();
         expect(context.get('accessToken')).to.have.property('id');
 
-        var remoting = require('strong-remoting');
+        var remoting = require('strong-remotingnext');
         context = remoting.getCurrentContext();
         expect(context.get('accessToken')).to.have.property('id');
 
