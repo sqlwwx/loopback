@@ -9,7 +9,7 @@
 
 var loopback = require('../../lib/loopback');
 var async = require('async');
-var deprecate = require('depd')('loopback');
+var deprecate = require('depd')('loopbacknext');
 
 /*!
  * Export the middleware.

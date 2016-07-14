@@ -7,7 +7,7 @@
 module.exports = function(grunt) {
 
   // Do not report warnings from unit-tests exercising deprecated paths
-  process.env.NO_DEPRECATION = 'loopback';
+  process.env.NO_DEPRECATION = 'loopbacknext';
 
   grunt.loadNpmTasks('grunt-mocha-test');
 
@@ -27,7 +27,7 @@ module.exports = function(grunt) {
       },
       dist: {
         files: {
-          'dist/loopback.min.js': ['dist/loopback.js']
+          'dist/loopbacknext.min.js': ['dist/loopbacknext.js']
         }
       }
     },
@@ -79,11 +79,11 @@ module.exports = function(grunt) {
     browserify: {
       dist: {
         files: {
-          'dist/loopback.js': ['index.js'],
+          'dist/loopbacknext.js': ['index.js'],
         },
         options: {
           ignore: ['nodemailer', 'passport', 'bcrypt'],
-          standalone: 'loopback'
+          standalone: 'loopbacknext'
         }
       }
     },

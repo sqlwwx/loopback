@@ -15,7 +15,7 @@ var CJSON = {stringify: require('canonical-json')};
 var async = require('async');
 var assert = require('assert');
 var debug = require('debug')('loopback:change');
-var deprecate = require('depd')('loopback');
+var deprecate = require('depd')('loopbacknext');
 
 /**
  * Change list entry.
