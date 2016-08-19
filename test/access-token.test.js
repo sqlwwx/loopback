@@ -6,6 +6,8 @@
 var cookieParser = require('cookie-parser');
 var loopback = require('../');
 var extend = require('util')._extend;
+var session = require('express-session');
+
 var Token = loopback.AccessToken.extend('MyToken');
 var ds = loopback.createDataSource({connector: loopback.Memory});
 Token.attachTo(ds);
@@ -421,7 +423,7 @@ describe('app.enableAuth()', function() {
   });
 
   it('prevent remote call with app setting status on denied ACL', function(done) {
-    createTestAppAndRequest(this.token, {app:{aclErrorStatus:403}}, done)
+    createTestAppAndRequest(this.token, {app: {aclErrorStatus: 403}}, done)
       .del('/tests/123')
       .expect(403)
       .set('authorization', this.token.id)
@@ -439,7 +441,7 @@ describe('app.enableAuth()', function() {
   });
 
   it('prevent remote call with app setting status on denied ACL', function(done) {
-    createTestAppAndRequest(this.token, {model:{aclErrorStatus:404}}, done)
+    createTestAppAndRequest(this.token, {model: {aclErrorStatus: 404}}, done)
       .del('/tests/123')
       .expect(404)
       .set('authorization', this.token.id)
@@ -477,7 +479,8 @@ describe('app.enableAuth()', function() {
   it('stores token in the context', function(done) {
     var TestModel = loopback.createModel('TestModel', { base: 'Model' });
     TestModel.getToken = function(cb) {
-      cb(null, loopback.getCurrentContext().get('accessToken') || null);
+      var ctx = loopback.getCurrentContext();
+      cb(null, ctx && ctx.get('accessToken') || null);
     };
     TestModel.remoteMethod('getToken', {
       returns: { arg: 'token', type: 'object' },
@@ -505,6 +508,29 @@ describe('app.enableAuth()', function() {
 
         done();
       });
+  });
+
+  // See https://github.com/strongloop/loopback-context/issues/6
+  it('checks whether context is active', function(done) {
+    var app = loopback();
+
+    app.enableAuth();
+    app.use(loopback.context());
+    app.use(session({
+      secret: 'kitty',
+      saveUninitialized: true,
+      resave: true
+    }));
+    app.use(loopback.token({ model: Token }));
+    app.get('/', function(req, res) { res.send('OK'); });
+    app.use(loopback.rest());
+
+    request(app)
+      .get('/')
+      .set('authorization', this.token.id)
+      .set('cookie', 'connect.sid=s%3AFTyno9_MbGTJuOwdh9bxsYCVxlhlulTZ.PZvp85jzLXZBCBkhCsSfuUjhij%2Fb0B1K2RYZdxSQU0c')
+      .expect(200, 'OK')
+      .end(done);
   });
 });
 
