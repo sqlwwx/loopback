@@ -9,6 +9,7 @@
 
 var g = require('strong-globalize')();
 
+var isEmail = require('isemail');
 var loopback = require('../../lib/loopback');
 var utils = require('../../lib/utils');
 var path = require('path');
@@ -436,24 +437,19 @@ module.exports = function(User) {
     function sendEmail(user) {
       options.verifyHref += '&token=' + user.verificationToken;
 
-      options.text = options.text || 'Please verify your email by opening this link in a web browser:\n\t{href}';
+      options.text = options.text || g.f('Please verify your email by opening ' +
+        'this link in a web browser:\n\t%s', options.verifyHref);
 
       options.text = options.text.replace(/\{href\}/g, options.verifyHref);
 
-      options.text = g.f(options.text);
-
       options.to = options.to || user.email;
 
-      options.subject = options.subject || 'Thanks for Registering';
-
-      options.subject = g.f(options.subject);
+      options.subject = options.subject || g.f('Thanks for Registering');
 
       options.headers = options.headers || {};
 
       var template = loopback.template(options.template);
       options.html = template(options);
-
-      options.html = g.f(options.html);
 
       Email.send(options, function(err, email) {
         if (err) {
@@ -740,10 +736,9 @@ module.exports = function(User) {
     assert(loopback.AccessToken, 'AccessToken model must be defined before User model');
     UserModel.accessToken = loopback.AccessToken;
 
-    // email validation regex
-    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-
-    UserModel.validatesFormatOf('email', {with: re, message: g.f('Must provide a valid email')});
+    UserModel.validate('email', emailValidator, {
+      message: g.f('Must provide a valid email')
+    });
 
     // FIXME: We need to add support for uniqueness of composite keys in juggler
     if (!(UserModel.settings.realmRequired || UserModel.settings.realmDelimiter)) {
@@ -761,3 +756,14 @@ module.exports = function(User) {
   User.setup();
 
 };
+
+function emailValidator(err, done) {
+  var value = this.email;
+  if (value == null)
+    return;
+  if (typeof value !== 'string')
+    return err('string');
+  if (value === '') return;
+  if (!isEmail(value))
+    return err('email');
+}
