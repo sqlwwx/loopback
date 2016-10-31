@@ -401,14 +401,18 @@ module.exports = function(User) {
       (options.protocol === 'https' && options.port == '443')
     ) ? '' : ':' + options.port;
 
+    var urlPath = joinUrlPath(
+      options.restApiRoot,
+      userModel.http.path,
+      userModel.sharedClass.find('confirm', true).http.path
+    );
+
     options.verifyHref = options.verifyHref ||
       options.protocol +
       '://' +
       options.host +
       displayPort +
-      options.restApiRoot +
-      userModel.http.path +
-      userModel.sharedClass.find('confirm', true).http.path +
+      urlPath +
       '?uid=' +
       options.user.id +
       '&redirect=' +
@@ -562,7 +566,14 @@ module.exports = function(User) {
       }
       // create a short lived access token for temp login to change password
       // TODO(ritch) - eventually this should only allow password change
-      user.accessTokens.create({ttl: ttl}, function(err, accessToken) {
+      if (UserModel.settings.emailVerificationRequired && !user.emailVerified) {
+        err = new Error(g.f('Email has not been verified'));
+        err.statusCode = 401;
+        err.code = 'RESET_FAILED_EMAIL_NOT_VERIFIED';
+        return cb(err);
+      }
+
+      user.accessTokens.create({ ttl: ttl }, function(err, accessToken) {
         if (err) {
           return cb(err);
         }
@@ -651,6 +662,36 @@ module.exports = function(User) {
         body.emailVerified = false;
       }
       next();
+    });
+
+    // Delete old sessions once email is updated
+    UserModel.observe('before save', function beforeEmailUpdate(ctx, next) {
+      if (ctx.isNewInstance) return next();
+      if (!ctx.where && !ctx.instance) return next();
+      var where = ctx.where || { id: ctx.instance.id };
+      ctx.Model.find({ where: where }, function(err, userInstances) {
+        if (err) return next(err);
+        ctx.hookState.originalUserData = userInstances.map(function(u) {
+          return { id: u.id, email: u.email };
+        });
+        next();
+      });
+    });
+
+    UserModel.observe('after save', function afterEmailUpdate(ctx, next) {
+      if (!ctx.Model.relations.accessTokens) return next();
+      var AccessToken = ctx.Model.relations.accessTokens.modelTo;
+      if (!ctx.instance && !ctx.data) return next();
+      var newEmail = (ctx.instance || ctx.data).email;
+      if (!newEmail) return next();
+      if (!ctx.hookState.originalUserData) return next();
+      var idsToExpire = ctx.hookState.originalUserData.filter(function(u) {
+        return u.email !== newEmail;
+      }).map(function(u) {
+        return u.id;
+      });
+      if (!idsToExpire.length) return next();
+      AccessToken.deleteAll({ userId: { inq: idsToExpire }}, next);
     });
 
     UserModel.remoteMethod(
@@ -766,4 +807,14 @@ function emailValidator(err, done) {
   if (value === '') return;
   if (!isEmail(value))
     return err('email');
+}
+
+function joinUrlPath(args) {
+  var result = arguments[0];
+  for (var ix = 1; ix < arguments.length; ix++) {
+    var next = arguments[ix];
+    result += result[result.length - 1] === '/' && next[0] === '/' ?
+      next.slice(1) : next;
+  }
+  return result;
 }
