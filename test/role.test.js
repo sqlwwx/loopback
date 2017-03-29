@@ -23,6 +23,7 @@ describe('role model', function() {
     // Use local app registry to ensure models are isolated to avoid
     // pollutions from other tests
     app = loopback({ localRegistry: true, loadBuiltinModels: true });
+    app.set('logoutSessionsOnSensitiveChanges', true);
     app.dataSource('db', { connector: 'memory' });
 
     ACL = app.registry.getModel('ACL');
@@ -44,9 +45,6 @@ describe('role model', function() {
     ACL.roleMappingModel = RoleMapping;
     ACL.userModel = User;
     ACL.applicationModel = Application;
-    Role.roleMappingModel = RoleMapping;
-    Role.userModel = User;
-    Role.applicationModel = Application;
   });
 
   it('should define role/role relations', function(done) {
@@ -245,6 +243,20 @@ describe('role model', function() {
                     Role.AUTHENTICATED,
                     Role.EVERYONE,
                     role.id,
+                  ]);
+                  next();
+                });
+            },
+            function(next) {
+              Role.getRoles(
+                { principalType: RoleMapping.USER, principalId: user.id },
+                { returnOnlyRoleNames: true },
+                function(err, roles) {
+                  if (err) return next(err);
+                  expect(roles).to.eql([
+                    Role.AUTHENTICATED,
+                    Role.EVERYONE,
+                    role.name,
                   ]);
                   next();
                 });
@@ -616,6 +628,84 @@ describe('role model', function() {
       });
     });
 
+    it('should fetch all models only assigned to the role', function(done) {
+      var principalTypesToModels = {};
+      var mappings;
+
+      principalTypesToModels[RoleMapping.USER] = User;
+      principalTypesToModels[RoleMapping.APPLICATION] = Application;
+      principalTypesToModels[RoleMapping.ROLE] = Role;
+      mappings = Object.keys(principalTypesToModels);
+
+      async.each(mappings, function(principalType, eachCallback) {
+        var Model = principalTypesToModels[principalType];
+
+        async.waterfall([
+          // Create models
+          function(next) {
+            Model.create([
+                { name: 'test', email: 'x@y.com', password: 'foobar' },
+                { name: 'test2', email: 'f@v.com', password: 'bargoo' },
+                { name: 'test3', email: 'd@t.com', password: 'bluegoo' }],
+              function(err, models) {
+                if (err) return next(err);
+                next(null, models);
+              });
+          },
+
+          // Create Roles
+          function(models, next) {
+            var uniqueRoleName = 'testRoleFor' + principalType;
+            var otherUniqueRoleName = 'otherTestRoleFor' + principalType;
+            Role.create([
+                { name: uniqueRoleName },
+                { name: otherUniqueRoleName }],
+              function(err, roles) {
+                if (err) return next(err);
+                next(null, models, roles);
+              });
+          },
+
+          // Create principles
+          function(models, roles, next) {
+            async.parallel([
+              function(callback) {
+                roles[0].principals.create(
+                  { principalType: principalType, principalId: models[0].id },
+                  function(err, p) {
+                    if (err) return callback(err);
+                    callback(p);
+                  });
+              },
+              function(callback) {
+                roles[1].principals.create(
+                  { principalType: principalType, principalId: models[1].id },
+                  function(err, p) {
+                    if (err) return callback(err);
+                    callback(p);
+                  });
+              }],
+            function(err, principles) {
+              next(null, models, roles, principles);
+            });
+          },
+
+          // Run tests against unique Role
+          function(models, roles, principles, next) {
+            var pluralName = Model.pluralModelName.toLowerCase();
+            var uniqueRole = roles[0];
+            uniqueRole[pluralName](function(err, models) {
+              if (err) return done(err);
+              assert.equal(models.length, 1);
+              next();
+            });
+          }],
+        eachCallback);
+      }, function(err) {
+        done();
+      });
+    });
+
     it('should apply query', function(done) {
       User.create({ name: 'Raymond', email: 'x@y.com', password: 'foobar' }, function(err, user) {
         if (err) return done(err);
@@ -643,6 +733,7 @@ describe('role model', function() {
   describe('isOwner', function() {
     it('supports app-local model registry', function(done) {
       var app = loopback({ localRegistry: true, loadBuiltinModels: true });
+      app.set('logoutSessionsOnSensitiveChanges', true);
       app.dataSource('db', { connector: 'memory' });
       // attach all auth-related models to 'db' datasource
       app.enableAuth({ dataSource: 'db' });
